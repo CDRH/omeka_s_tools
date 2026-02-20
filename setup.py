@@ -1,4 +1,4 @@
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 from configparser import ConfigParser
 import setuptools,re,sys
 assert parse_version(setuptools.__version__)>=parse_version('36.2')
@@ -40,7 +40,7 @@ long_description = open('README.md').read()
 # ![png](docs/images/output_13_0.png)
 for ext in ['png', 'svg']:
     long_description = re.sub(r'!\['+ext+'\]\((.*)\)', '!['+ext+']('+'https://raw.githubusercontent.com/{}/{}'.format(cfg['user'],cfg['lib_name'])+'/'+cfg['branch']+'/\\1)', long_description)
-    long_description = re.sub(r'src=\"(.*)\.'+ext+'\"', 'src=\"https://raw.githubusercontent.com/{}/{}'.format(cfg['user'],cfg['lib_name'])+'/'+cfg['branch']+'/\\1.'+ext+'\"', long_description)
+    long_description = re.sub(r'src=\"(.*)\.'+ext+'\"', 'src=\"https://raw.githubusercontent.com/{}/{}'.format(cfg['user'],cfg['lib_name'])+'/'+cfg['branch']+'/\\1.'+ext+r'/\1)', long_description)
 
 setuptools.setup(
     name = cfg['lib_name'],
