@@ -350,7 +350,7 @@ class OmekaAPIClient(object):
             property_value['@value'] = value['value']
         return property_value
 
-    def add_item(self, payload, media_files=None, template_id=None, class_id=None, item_set_id=None):
+    def add_item(self, payload, media_files=None, template_id=None, class_id=None, item_set_id=None, is_public=True):
         '''
         Create a new item from the supplied payload, optionally uploading attached media files.
 
@@ -379,6 +379,7 @@ class OmekaAPIClient(object):
             response = self.s.post(f'{self.api_url}/items', files=files, params=self.credentials)
         else:
             response = self.s.post(f'{self.api_url}/items', json=payload, params=self.credentials)
+        payload["o:is_public"] = is_public
         #print(response.text)
         data = self.process_response(response)
         return data
