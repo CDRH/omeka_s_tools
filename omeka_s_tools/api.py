@@ -374,12 +374,12 @@ class OmekaAPIClient(object):
             payload['o:resource_class'] = self.format_resource_id(class_id, 'resource_classes')
         if item_set_id:
             payload['o:item_set'] = self.format_resource_id(item_set_id, 'item_sets')
+        payload["o:is_public"] = is_public
         if media_files:
             files = self.add_media_to_payload(payload, media_files)
             response = self.s.post(f'{self.api_url}/items', files=files, params=self.credentials)
         else:
             response = self.s.post(f'{self.api_url}/items', json=payload, params=self.credentials)
-        payload["o:is_public"] = is_public
         #print(response.text)
         data = self.process_response(response)
         return data
