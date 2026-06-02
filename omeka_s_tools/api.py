@@ -345,10 +345,10 @@ class OmekaAPIClient(object):
             property_value['@value'] = value['value']
         elif data_type == 'uri':
             property_value['@id'] = value['value']
-            if label == "":
-                property_value["o:label"] = value["value"].split("/")[-1]
+            if label == '':
+                property_value['o:label'] = value['value'].split('/')[-1]
             else:
-                property_value["o:label"] = label
+                property_value['o:label'] = label
         else:
             property_value['@value'] = value['value']
         return property_value
@@ -560,9 +560,9 @@ class OmekaAPIClient(object):
                 class_id = template['o:resource_class']['o:id']
         if class_id:
             payload['o:resource_class'] = self.format_resource_id(class_id, 'resource_classes')
-        # Use the ingester declared in the payload, falling back to "upload".
+        # Use the ingester declared in the payload, falling back to 'upload'.
         # Using .get() guards against a missing key
-        ingester = payload.get("o:ingester") or "upload"
+        ingester = payload.get('o:ingester') or 'upload'
         file_data = {
             'o:ingester': ingester,
             'file_index': '0',
