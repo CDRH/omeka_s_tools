@@ -524,7 +524,7 @@ class OmekaAPIClient(object):
         data = self.process_response(response)
         return data
 
-    def add_media_to_item(self, item_id, media_file, payload={}, template_id=None, class_id=None):
+    def add_media_to_item(self, item_id, media_file, payload=None, template_id=None, class_id=None):
         '''
         Upload a media file and associate it with an existing item.
 
@@ -541,15 +541,16 @@ class OmekaAPIClient(object):
         * a dict providing a JSON-LD representation of the new media object
         '''
         if payload is None:
-        payload = {}
+            payload = {}
 
         files = {}
         # For backwards compatibility
         if isinstance(media_file, dict):
-            path = media_file['path']
+            path = Path(media_file['path'])
             payload = media_file['title']
-        # Make sure path is a Path object
-        path = Path(media_file)
+        else:
+            # Make sure path is a Path object
+            path = Path(media_file)
         if isinstance(payload, str):
             payload = self.prepare_item_payload({'dcterms:title': [payload]})
         if template_id:
