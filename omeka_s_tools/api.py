@@ -309,7 +309,7 @@ class OmekaAPIClient(object):
 
     # ADDING ITEMS
 
-    def prepare_property_value(self, value, property_id):
+    def prepare_property_value(self, value, property_id, label=""):
         '''
         Formats a property value according to its datatype as expected by Omeka.
         The formatted value can be used in a payload to create a new item.
@@ -317,6 +317,7 @@ class OmekaAPIClient(object):
         Parameters:
         * `value` - a dict containing a `value` and (optionally) a `type`
         * `property_id` - the numeric identifier of the property
+        * `label` - display label for URI values
 
         Note that is no `type` is supplied, 'literal' will be used by default.
 
@@ -344,8 +345,10 @@ class OmekaAPIClient(object):
             property_value['@value'] = value['value']
         elif data_type == 'uri':
             property_value['@id'] = value['value']
-            if value['label']:
-                property_value['o:label'] = value['label']
+            if label == '':
+                property_value['o:label'] = value['value'].split('/')[-1]
+            else:
+                property_value['o:label'] = label
         else:
             property_value['@value'] = value['value']
         return property_value
@@ -521,7 +524,7 @@ class OmekaAPIClient(object):
         data = self.process_response(response)
         return data
 
-    def add_media_to_item(self, item_id, media_file, payload={}, template_id=None, class_id=None):
+    def add_media_to_item(self, item_id, media_file, payload=None, template_id=None, class_id=None):
         '''
         Upload a media file and associate it with an existing item.
 
@@ -537,13 +540,17 @@ class OmekaAPIClient(object):
         Returns:
         * a dict providing a JSON-LD representation of the new media object
         '''
+        if payload is None:
+            payload = {}
+
         files = {}
         # For backwards compatibility
         if isinstance(media_file, dict):
-            path = media_file['path']
+            path = Path(media_file['path'])
             payload = media_file['title']
-        # Make sure path is a Path object
-        path = Path(media_file)
+        else:
+            # Make sure path is a Path object
+            path = Path(media_file)
         if isinstance(payload, str):
             payload = self.prepare_item_payload({'dcterms:title': [payload]})
         if template_id:
@@ -553,8 +560,11 @@ class OmekaAPIClient(object):
                 class_id = template['o:resource_class']['o:id']
         if class_id:
             payload['o:resource_class'] = self.format_resource_id(class_id, 'resource_classes')
+        # Use the ingester declared in the payload, falling back to 'upload'.
+        # Using .get() guards against a missing key
+        ingester = payload.get('o:ingester') or 'upload'
         file_data = {
-            'o:ingester': 'upload',
+            'o:ingester': ingester,
             'file_index': '0',
             'o:source': path.name,
             'o:item': {'o:id': item_id},
